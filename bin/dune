@@ -1,0 +1,4 @@
+(executable
+ (public_name piaf-nostr-client)
+ (name main)
+ (libraries piaf_nostr_client piaf yojson eio_main))

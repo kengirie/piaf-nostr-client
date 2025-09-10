@@ -1,0 +1,2 @@
+(library
+ (name piaf_nostr_client))
