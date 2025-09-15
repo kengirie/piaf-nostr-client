@@ -30,12 +30,17 @@ let main env =
               [
                 `String "REQ";
                 `String subscription_id;
-                `Assoc [ ("limit", `Int 10) ]; (* Limitを増やしてkind:1を見つけやすくする *)
+                `Assoc [
+                  ("kinds", `List [`Int 1]);
+                  ("limit", `Int 5)
+                ];
               ]
           in
           let request_string = Yojson.Safe.to_string request in
           Ws.Descriptor.send_string ws_descriptor request_string;
-          traceln "Sent: %s" request_string;
+          (* JSONを整形して表示 *)
+          let pretty_json = Yojson.Safe.pretty_to_string request in
+          traceln "Sent JSON:\n%s" pretty_json;
 
           let messages = Ws.Descriptor.messages ws_descriptor in
           let rec recv_loop () =
@@ -46,10 +51,7 @@ let main env =
                  let json = Yojson.Safe.from_string received_string in
                  match json with
                  | `List [ `String "EVENT"; _sub_id; event_obj ] ->
-                   (match Yojson.Safe.Util.member "kind" event_obj with
-                    | `Int 1 ->
-                      traceln "Received kind:1 event: %s" (Yojson.Safe.to_string event_obj)
-                    | _ -> ())
+                   traceln "Received event: %s" (Yojson.Safe.to_string event_obj)
                  | _ -> ()
                with
                | Yojson.Json_error msg ->
